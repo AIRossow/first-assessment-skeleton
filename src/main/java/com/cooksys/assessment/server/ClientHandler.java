@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,7 @@ public class ClientHandler implements Runnable {
 
 	private Socket socket;
 	public static Map<String, Socket> users = new HashMap<String, Socket>();
+	private String timeStamp;
 
 	public ClientHandler(Socket socket) {
 		super();
@@ -39,26 +41,44 @@ public class ClientHandler implements Runnable {
 			while (!socket.isClosed()) {
 				String raw = reader.readLine();
 				Message message = mapper.readValue(raw, Message.class);
-
-				//need to change the second param to port or thread or something
+				
+				if(message.getCommand().substring(0) == "@") {
+					log.info("user <{}> direct messaged <{}>", message.getUsername(), message.getCommand().substring(1));
+					String directMessage = mapper.writeValueAsString(message);
+					PrintWriter dmWrite = new PrintWriter(new OutputStreamWriter
+							(users.get(message.getCommand().substring(1)).getOutputStream()));
+					dmWrite.write(directMessage);
+					dmWrite.flush();
+				} else {
 				
 				switch (message.getCommand()) {
 					case "connect":
 						log.info("user <{}> connected", message.getUsername());
 						users.put(message.getUsername(), socket);
-						message.setContents(message.getUsername().toString() + " connected" );
+						timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
+						message.setContents(timeStamp + " " + message.getUsername().toString() + " connected" );
 						for (String key : users.keySet()) {;
-							PrintWriter broadWrite = new PrintWriter(new OutputStreamWriter
+							PrintWriter connectAlert = new PrintWriter(new OutputStreamWriter
 									(users.get(key).getOutputStream()));
 							
 							String connected = mapper.writeValueAsString(message);
-							broadWrite.write(connected);
-							broadWrite.flush();
+							connectAlert.write(connected);
+							connectAlert.flush();
 						}
 						break;
 					case "disconnect":
 						log.info("user <{}> disconnected", message.getUsername());
 						users.remove(message.getUsername());
+						timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
+						message.setContents(timeStamp + " " + message.getUsername().toString() + " disconnected" );
+						for (String key : users.keySet()) {;
+							PrintWriter disconnectAlert = new PrintWriter(new OutputStreamWriter
+									(users.get(key).getOutputStream()));
+							
+							String disconnected = mapper.writeValueAsString(message);
+							disconnectAlert.write(disconnected);
+							disconnectAlert.flush();
+						}
 						this.socket.close();
 						break;
 					case "echo":
@@ -69,8 +89,9 @@ public class ClientHandler implements Runnable {
 						break;
 					case "broadcast":
 						//create broadcast
+						timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
 						log.info("user <{}> broadcasted message <{}>", message.getUsername(), message.getContents());						
-						String everything = createContents(message.getUsername(), message.getCommand(), message.getContents());
+						String everything = createContents(message.getUsername(), timeStamp, message.getCommand(), message.getContents());
 						message.setContents(everything);
 						for (String key : users.keySet()) {
 							PrintWriter broadWrite = new PrintWriter(new OutputStreamWriter
@@ -82,16 +103,23 @@ public class ClientHandler implements Runnable {
 							broadWrite.flush();
 						}
 						break;
-					case "@":
-						//create @
-						break;
+//					case "@":
+//						log.info("user <{}> direct messaged <{}>", message.getUsername(), message.getCommand().substring(1));
+//						String directMessage = mapper.writeValueAsString(message);
+//						PrintWriter dmWrite = new PrintWriter(new OutputStreamWriter
+//								(users.get(message.getCommand().substring(1)).getOutputStream()));
+//						dmWrite.write(directMessage);
+//						dmWrite.flush();
+//						break;
 					case "users":
 						log.info("user <{}> called display users", message.getUsername(), message.getContents());
-							message.setContents(getUsers());
+						timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
+							message.setContents(timeStamp + "\n" + getUsers());
 							String dispUsers = mapper.writeValueAsString(message);
 							writer.write(dispUsers);
 							writer.flush();
 						break;
+					}
 				}
 			}
 
@@ -100,8 +128,8 @@ public class ClientHandler implements Runnable {
 		}
 	}
 	
-	public String createContents(String username, String command, String contents) {
-		String everything = username + " " + command + " " + contents;
+	public String createContents(String username, String timeStamp, String command, String contents) {
+		String everything = timeStamp + " " + username + " " + " " + command + " " + contents;
 		
 		return everything;
 	}

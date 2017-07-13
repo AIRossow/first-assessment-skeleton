@@ -30,5 +30,13 @@ public class Message {
 	public void setContents(String contents) {
 		this.contents = contents;
 	}
+	
+	public String getTimestamp() {
+		return timeStamp;
+	}
+
+	public void setTimestamp(String timeStamp) {
+		this.timeStamp = timeStamp;
+	}
 
 }
