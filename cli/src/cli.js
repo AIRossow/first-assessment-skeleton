@@ -9,6 +9,7 @@ let username
 let server
 let clientPort = null
 let host = null
+// let comDelim = [ , cli.chalk['red']('users>'), cli.chalk['blue']('broadcast>')]
 
 cli
   .delimiter(cli.chalk['yellow']('ftd~$'))
@@ -36,7 +37,7 @@ cli
     })
   })
   .action(function (input, callback) {
-    const [ command, ...rest ] = words(input)
+    const [ command, ...rest ] = words(input) // , /[^, ] + /g)
     const contents = rest.join(' ')
 
     if (command === 'disconnect') {
@@ -46,8 +47,9 @@ cli
     } else if (command === 'broadcast') {
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     } else if (command === 'users') {
-      server.write(new Message({ username, command, contents }).toJSON() + '\n')// .delimiter(cli.chalk['red']('users>'))
-    } else if (command.charAt[0] === '@') {
+      server.write(new Message({ username, command, contents }).toJSON() + '\n')
+    } else if (command.charCodeAt[0] === '@'.charCodeAt[0]) {
+      // atStr.concat(command)
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     } else {
       this.log(`Command <${command}> was not recognized`)

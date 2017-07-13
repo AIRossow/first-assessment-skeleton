@@ -41,16 +41,7 @@ public class ClientHandler implements Runnable {
 			while (!socket.isClosed()) {
 				String raw = reader.readLine();
 				Message message = mapper.readValue(raw, Message.class);
-				
-				if(message.getCommand().substring(0) == "@") {
-					log.info("user <{}> direct messaged <{}>", message.getUsername(), message.getCommand().substring(1));
-					String directMessage = mapper.writeValueAsString(message);
-					PrintWriter dmWrite = new PrintWriter(new OutputStreamWriter
-							(users.get(message.getCommand().substring(1)).getOutputStream()));
-					dmWrite.write(directMessage);
-					dmWrite.flush();
-				} else {
-				
+								
 				switch (message.getCommand()) {
 					case "connect":
 						log.info("user <{}> connected", message.getUsername());
@@ -119,9 +110,23 @@ public class ClientHandler implements Runnable {
 							writer.write(dispUsers);
 							writer.flush();
 						break;
+					default:
+						for (String key : users.keySet()){
+							timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
+							if(message.getCommand().compareTo(key) == 0) {
+								log.info("user <{}> direct messaged <{}>", message.getUsername(), message.getCommand());
+								String everything1 = createContents(message.getUsername(), timeStamp, "whispered", message.getContents());
+								message.setContents(everything1);
+								String directMessage = mapper.writeValueAsString(message);
+								PrintWriter dmWrite = new PrintWriter(new OutputStreamWriter
+									(users.get(message.getCommand()).getOutputStream()));
+								dmWrite.write(directMessage);
+								dmWrite.flush();
+							}
+						}
+						break;
 					}
 				}
-			}
 
 		} catch (IOException e) {
 			log.error("Something went wrong :/", e);
@@ -129,7 +134,7 @@ public class ClientHandler implements Runnable {
 	}
 	
 	public String createContents(String username, String timeStamp, String command, String contents) {
-		String everything = timeStamp + " " + username + " " + " " + command + " " + contents;
+		String everything = timeStamp + " " + username + " " + command + " " + contents;
 		
 		return everything;
 	}
