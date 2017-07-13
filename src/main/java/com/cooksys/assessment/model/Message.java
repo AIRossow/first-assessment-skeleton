@@ -5,7 +5,8 @@ public class Message {
 	private String username;
 	private String command;
 	private String contents;
-
+	private String timeStamp;
+	
 	public String getUsername() {
 		return username;
 	}
