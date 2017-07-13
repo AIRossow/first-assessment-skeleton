@@ -122,6 +122,13 @@ public class ClientHandler implements Runnable {
 									(users.get(message.getCommand()).getOutputStream()));
 								dmWrite.write(directMessage);
 								dmWrite.flush();
+//								String reciept;
+//								reciept = createContents(message.getUsername(), timeStamp,
+//										                    "whispered to " + message.getCommand(), message.getContents());
+//								message.setContents(reciept);
+//								directMessage = mapper.writeValueAsString(message);
+//								writer.write(directMessage);
+//								writer.flush();
 							}
 						}
 						break;

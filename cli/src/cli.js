@@ -37,7 +37,7 @@ cli
     })
   })
   .action(function (input, callback) {
-    const [ command, ...rest ] = words(input) // , /[^, ] + /g)
+    const [ command, ...rest ] = words(input) //, /[^, ] + /g)
     const contents = rest.join(' ')
 
     if (command === 'disconnect') {
@@ -47,9 +47,9 @@ cli
     } else if (command === 'broadcast') {
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     } else if (command === 'users') {
+      // cli.ui.delimiter(cli.chalk['red'](contents))
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
-    } else if (command.charCodeAt[0] === '@'.charCodeAt[0]) {
-      // atStr.concat(command)
+    } else if (command === '@') {
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     } else {
       this.log(`Command <${command}> was not recognized`)
