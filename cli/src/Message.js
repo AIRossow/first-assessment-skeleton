@@ -26,9 +26,12 @@ export class Message {
     } else if (this.command === 'echo') {
       return cli.chalk['blue'](`${this.contents}`)
     } else if (this.command === 'broadcast') {
-      return cli.chalk['grey'](`${this.contents}`)
+      return cli.chalk['white'](`${this.contents}`)
+      // return cli.chalk['grey'](`${this.timeStamp} <${this.username}> (all): ${this.contents}`)
     } else if (this.command === 'users') {
       return cli.chalk['yellow'](`${this.contents}`)
+    } else {
+      return cli.chalk['grey'](`${this.contents}`)
     }
   }
 }
