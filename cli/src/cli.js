@@ -9,7 +9,8 @@ let username
 let server
 let clientPort = null
 let host = null
-let atStr = '@'
+// let lastCommand = ''
+// let lastCont = ''
 // let timeStamp = String(Date.now)
 
 cli
@@ -38,9 +39,12 @@ cli
     })
   })
   .action(function (input, callback) {
+    // if (input.keyCode === 13) {
+    //   this.log('You must enter a command.')
+    //   callback()
+    // }
     const [ command, ...rest ] = words(input)//, /[^, ] + /g)
     const contents = rest.join(' ')
-
     if (command === 'disconnect') {
       server.end(new Message({ username, command }).toJSON() + '\n')
     } else if (command === 'echo') {
@@ -51,8 +55,15 @@ cli
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     } else if (input[0] === '@') {
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
+    } else if (command === 'help') {
+      this.log('Command list:')
+      this.log('broadcast (message)   //broadcasts message to all users')
+      this.log('disconnect            //disconnect from server')
+      this.log('echo (message)        //repeats message back to you')
+      this.log('users                 //lists all connected users')
+      this.log('@<username> (message) //message can only be seen by specified username')
     } else {
-      this.log(`Command <${command}> was not recognized`)
+      this.log(`Command <${command}> was not recognized. Enter help for valid commands`)
     }
 
     callback()

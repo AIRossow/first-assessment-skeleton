@@ -52,6 +52,14 @@ public class ClientHandler implements Runnable {
 				switch (message.getCommand()) {
 					case "connect":
 						timeStamp = new SimpleDateFormat("MM/dd/yyyy HH:mm.ss").format(new java.util.Date());
+						if(users.containsKey(message.getUsername())) {
+							log.info("{} someone tried connecting with taken username <{}>", timeStamp, message.getUsername());
+							message.setContents("Username already taken.");
+							String taken = mapper.writeValueAsString(message);
+							writer.write(taken);
+							writer.flush();
+							this.socket.close();
+						} else {
 						log.info("{} <{}> connected", timeStamp, message.getUsername());
 						users.put(message.getUsername(), socket);
 						message.setContents(timeStamp + ": <" + message.getUsername() + "> has connected" );
@@ -62,6 +70,7 @@ public class ClientHandler implements Runnable {
 							String connected = mapper.writeValueAsString(message);
 							connectAlert.write(connected);
 							connectAlert.flush();
+						}
 						}
 						break;
 					case "disconnect":
@@ -131,13 +140,6 @@ public class ClientHandler implements Runnable {
 									(users.get(key).getOutputStream()));
 								dmWrite.write(directMessage);
 								dmWrite.flush();
-//								String reciept;
-//								reciept = createContents(message.getUsername(), timeStamp,
-//										                    "whispered to " + message.getCommand(), message.getContents());
-//								message.setContents(reciept);
-//								directMessage = mapper.writeValueAsString(message);
-//								writer.write(directMessage);
-//								writer.flush();
 							}
 						}
 							break;
